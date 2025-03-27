@@ -7,13 +7,11 @@ const app = express();
 const PORT = 3000;
 const SECRET_KEY = "supersecret";
 
-// Массив пользователей (храним в памяти)
 const users = [];
 
 app.use(cors());
 app.use(bodyParser.json());
 
-// Регистрация
 app.post("/register", (req, res) => {
     const { username, password } = req.body;
     if (users.find(user => user.username === username)) {
@@ -23,7 +21,6 @@ app.post("/register", (req, res) => {
     res.json({ message: "Регистрация успешна" });
 });
 
-// Вход (получение JWT)
 app.post("/login", (req, res) => {
     const { username, password } = req.body;
     const user = users.find(u => u.username === username && u.password === password);
@@ -34,7 +31,6 @@ app.post("/login", (req, res) => {
     res.json({ token });
 });
 
-// Middleware для проверки JWT
 const authenticateToken = (req, res, next) => {
     const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(403).json({ message: "Требуется токен" });
@@ -46,7 +42,6 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// Защищенный маршрут
 app.get("/protected", authenticateToken, (req, res) => {
     res.json({ message: `Привет, ${req.user.username}! Это защищенные данные.` });
 });
