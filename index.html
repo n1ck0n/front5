@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Аутентификация</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        input { display: block; margin: 10px auto; padding: 8px; width: 200px; }
+        button { padding: 8px 15px; cursor: pointer; }
+        #message { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>Регистрация</h2>
+    <input type="text" id="regUsername" placeholder="Логин">
+    <input type="password" id="regPassword" placeholder="Пароль">
+    <button onclick="register()">Зарегистрироваться</button>
+
+    <h2>Вход</h2>
+    <input type="text" id="loginUsername" placeholder="Логин">
+    <input type="password" id="loginPassword" placeholder="Пароль">
+    <button onclick="login()">Войти</button>
+
+    <h2>Защищенные данные</h2>
+    <button onclick="getProtectedData()">Получить данные</button>
+
+    <p id="message"></p>
+
+    <script>
+        const apiUrl = "http://localhost:3000";
+        let token = "";
+
+        async function register() {
+            const username = document.getElementById("regUsername").value;
+            const password = document.getElementById("regPassword").value;
+
+            const response = await fetch(`${apiUrl}/register`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            document.getElementById("message").innerText = data.message;
+        }
+
+        async function login() {
+            const username = document.getElementById("loginUsername").value;
+            const password = document.getElementById("loginPassword").value;
+
+            const response = await fetch(`${apiUrl}/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                token = data.token;
+                document.getElementById("message").innerText = "Успешный вход!";
+            } else {
+                document.getElementById("message").innerText = data.message;
+            }
+        }
+
+        async function getProtectedData() {
+            const response = await fetch(`${apiUrl}/protected`, {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const data = await response.json();
+            document.getElementById("message").innerText = data.message;
+        }
+    </script>
+
+</body>
+</html>
